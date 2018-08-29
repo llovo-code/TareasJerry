@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 /**
  *
@@ -20,6 +21,7 @@ public class AlumnoDaoImplem implements AlumnoDao{
 private RandomAccessFile raf;
 private File file;
 private String filename;
+private final int DIM=69;
 
 public AlumnoDaoImplem(){
     
@@ -58,28 +60,31 @@ private String LimistString(String text,int capacidad){
     @Override
     public Alumno findById(int id) throws IOException {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-       openRAF();
+        Alumno Alum =new Alumno();
+        openRAF();
        raf.seek(0);
        int n = raf.readInt();
        if(n==0){return null;}
        
      int index = BinarySearchRecursive(id, 1, n);
        
-     if(index <= (-1)){return null;}
-       long pos = 8+69*index;
+     if(index <= (-1)){return null;
+     }else{
+     long pos = 8+(69*index);
      System.out.println(pos);
      raf.seek(pos);
-     Alumno Alum =new Alumno();
+    
       System.out.println(index);
        
      Alum.setId(raf.readInt());
      Alum.setName(raf.readUTF().replace('\0', ' ').trim());
      Alum.setLastName(raf.readUTF().replace('\0', ' ').trim());
      Alum.setAge(raf.readInt());
-     Alum.setGrado(raf.readUTF().replace('\0', ' ').trim());
      Alum.setDate(raf.readLong());
+      Alum.setGrado(raf.readUTF().replace('\0', ' ').trim());
      Alum.setCountry(
            Alumno.LIST_COUNTRY.values()[raf.readInt()]);
+     }
     // raf.seek(0);
         System.out.println(":v");
      closeRAF();
@@ -105,12 +110,19 @@ private String LimistString(String text,int capacidad){
 
     @Override
     public List<Alumno> findByName(String name) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      List<Alumno> list = getAll();
+      List<Alumno> found = new ArrayList<>();
+      int l,r,key;
+      Collections.sort(list, (Alumno e,Alumno e1)->e.getName().compareToIgnoreCase(e1.getName()));
+      key = Collections.binarySearch(list, new Alumno(name,null,0,0,null,Alumno.LIST_COUNTRY.valueOf(null)),
+              (Alumno e , Alumno e1)->e.getName().compareToIgnoreCase(e1.getName()));
     }
 
     @Override
     public List<Alumno> findByLastName(String LastName) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+       // AlumnoDaoImplem dao = new AlumnoDaoImplem();
+        
     }
 
     @Override
@@ -172,6 +184,7 @@ private String LimistString(String text,int capacidad){
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     List<Alumno> list = getAll();
     List<Alumno> temp = rebuild(list ,t);
+    openRAF();
     raf.seek(0);
     int n = raf.readInt();
     int k = raf.readInt();
@@ -182,27 +195,27 @@ private String LimistString(String text,int capacidad){
         if(raf!=null && file.exists() && temp!=null){
             raf.seek(0);
             raf.writeInt(--n);
-                raf.writeInt(k);
-                int i=0;
-                for (Alumno x:
-                     temp) {
-                    long pos=8+69*i;
-                    raf.seek(pos);
-                    raf.writeInt(x.getId());
-                    raf.writeUTF(LimistString(x.getName(), 10));
-                    raf.writeUTF(LimistString(x.getName(), 10));
-                    raf.writeInt(x.getAge());
-                    raf.writeLong(x.getDate());
-                    raf.writeUTF(LimistString(x.getGrado(), 3));
-                    raf.writeLong(x.getCountry().ordinal());
-                    i++;
-                    raf.seek(0);
-                }
-                 raf.seek(0);
+            raf.writeInt(k);
+            int i=0;
+            for (Alumno x:
+                 temp) {
+                long pos=8+69*i;
+                raf.seek(pos);
+                raf.writeInt(x.getId());
+                raf.writeUTF(LimistString(x.getName(), 10));
+                raf.writeUTF(LimistString(x.getName(), 10));
+                raf.writeInt(x.getAge());
+                raf.writeLong(x.getDate());
+                raf.writeUTF(LimistString(x.getGrado(), 3));
+                raf.writeLong(x.getCountry().ordinal());
+                i++;
+               // raf.seek(0);
+            }
+                
             closeRAF();
             return true;
         }
-         raf.seek(0);
+       
         closeRAF();
         return false;
     }

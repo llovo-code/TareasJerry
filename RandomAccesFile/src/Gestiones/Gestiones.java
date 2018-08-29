@@ -29,7 +29,8 @@ public class Gestiones{
                 + "2 - ACTUALIZAR ALUMNO\n"
                 + "3 - BORRAR ALUMNO\n"
                 + "4 - BUSCAR ALUMNO\n"
-                + "5 - SALIR\n"
+                + "5 - MOSTRAR TODOS\n"
+                + "6 - SALIR\n"
                 + "OPCION: ");
     }
     
@@ -60,6 +61,11 @@ public class Gestiones{
               break;
           }
           case 5:{
+              seeAll();
+              break;
+          }
+          case 6:{
+              
               break;
           }
           default:{
@@ -123,7 +129,7 @@ public class Gestiones{
                 + "6 - TODO\n"
                 + "OPCION: ");
         int opc = Integer.parseInt(in.readLine());
-        in.readLine();
+       // in.readLine();
         switchActulizar(opc,id);
         
     }
@@ -175,7 +181,7 @@ public class Gestiones{
             }
             case 5:{
                 int country = MenuCountry();
-                alumn.setCountry(Alumno.LIST_COUNTRY.values()[country]);
+                alumn.setCountry(Alumno.LIST_COUNTRY.values()[country-1]);
                 dao.uptade(alumn);
                 break;
             }
@@ -203,7 +209,7 @@ public class Gestiones{
                 long DATE = date.getTime();
                 alumn.setDate(DATE);
                 int country = MenuCountry();
-                alumn.setCountry(Alumno.LIST_COUNTRY.values()[country]);
+                alumn.setCountry(Alumno.LIST_COUNTRY.values()[country-1]);
                 dao.uptade(alumn);
                 break;
             }
@@ -231,7 +237,7 @@ public class Gestiones{
     private void DeleteAlumno()throws IOException{
         AlumnoDaoImplem dao = new AlumnoDaoImplem();
         List<Alumno> alumn = dao.findall();
-        Alumno Alumn = new Alumno();
+        
         printMessage(); 
         alumn.forEach((e) -> {
             printData(e);
@@ -239,10 +245,21 @@ public class Gestiones{
         System.out.println("Indique el Id del Alumno a borrar: ");
         
         int id = Integer.parseInt(in.readLine());
+        Alumno Alumn = dao.findById(id);
         if(Alumn.getId()==id){
+            System.out.println(Alumn.getId());
             dao.delete(Alumn);
         }
         
+    }
+     
+    private void seeAll()throws IOException{
+        AlumnoDaoImplem  dao = new AlumnoDaoImplem();
+        List<Alumno> alumn = dao.findall();
+        printMessage();
+      for(Alumno e: alumn){
+          printData(e);
+      }
     }
 }
 
